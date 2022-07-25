@@ -1,0 +1,63 @@
+#coding:utf-8
+#22/05/15  Ruize Zhou
+import utils
+IV='7380166f4914b2b9172442d7da8a0600a96f30bc163138aae38dee4db0fb0e4e'
+import numpy as np
+from gmssl import sm3, func
+
+
+#seed=['0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f','\0']
+
+
+def getinput(len=10):
+    input_data=''
+    for i in range(0,len):
+        input_data+=seed[np.random.randint(0,17)]
+
+    return input_data
+
+
+
+def naive_birthday(n):
+    memory=[]
+    for i in range(2**n):
+        memory+=['blank']
+    temp=n//2
+    for i in range(2**temp):
+        input_data=getinput()
+        joint_b=bytes(input_data,encoding='utf-8')
+        output_data= sm3.sm3_hash(func.bytes_to_list(joint_b))
+
+
+        # output_data=sm3(input_data).label
+        prefix=output_data[0:(temp//2)]
+        index=int(prefix,16)
+
+        if memory[index]=="blank":
+            memory[index]=input_data
+        else:
+            return memory[index],input_data
+
+
+
+
+
+
+
+if __name__=='__main__':
+
+    lenth=8
+    a1,a2=naive_birthday(lenth)
+    print(a1,'\t',a2)
+    
+    enc_a1=bytes(a1,encoding='utf-8')
+    enc_a1= sm3.sm3_hash(func.bytes_to_list(enc_a1))
+    print(a1,':',enc_a1)
+    
+    enc_a2=bytes(a2,encoding='utf-8')
+    enc_a2= sm3.sm3_hash(func.bytes_to_list(enc_a2))
+    print(a2,':',enc_a2)
+
+
+
+
